@@ -84,6 +84,14 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm whoami --registry=https://registry.npmjs.org
 
+      - name: Configure Git user
+        if: ${{ steps.npm_exists.outputs.exists != 'true' && steps.tag_exists.outputs.exists != 'true' }}
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
       - name: Create and push tag
         if: ${{ steps.npm_exists.outputs.exists != 'true' && steps.tag_exists.outputs.exists != 'true' }}
         env:
