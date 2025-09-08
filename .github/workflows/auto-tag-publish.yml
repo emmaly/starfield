@@ -1,0 +1,113 @@
+name: Auto tag and publish
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  tag-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # need tags
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Read package info
+        id: pkg
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          echo "name=$NAME" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Package: $NAME@$VERSION"
+
+      - name: Fetch tags
+        run: git fetch --tags --force
+
+      - name: Check if tag exists
+        id: tag_exists
+        run: |
+          TAG="v${{ steps.pkg.outputs.version }}"
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag $TAG already exists; continuing to npm check"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if version already published to npm
+        id: npm_exists
+        env:
+          PKG_NAME: ${{ steps.pkg.outputs.name }}
+          PKG_VERSION: ${{ steps.pkg.outputs.version }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -e
+          echo "Checking npm for $PKG_NAME@$PKG_VERSION"
+          # If package doesn't exist yet, this will fail; handle gracefully
+          if npm view "$PKG_NAME" versions --json > versions.json 2>/dev/null; then
+            if node -e 'const v=require("./versions.json"); const list=Array.isArray(v)?v:[]; if(list.includes(process.env.PKG_VERSION)) process.exit(0); else process.exit(1);'; then
+              echo "exists=true" >> $GITHUB_OUTPUT
+              echo "npm version already exists"
+            else
+              echo "exists=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install deps
+        if: ${{ steps.npm_exists.outputs.exists != 'true' }}
+        run: npm ci
+
+      - name: Verify package
+        if: ${{ steps.npm_exists.outputs.exists != 'true' }}
+        run: |
+          node -e "const p=require('./package.json'); if(!p.name||!p.version){throw new Error('name/version missing')} console.log('Releasing', p.name, p.version)"
+
+      - name: Verify npm auth
+        if: ${{ steps.npm_exists.outputs.exists != 'true' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm whoami --registry=https://registry.npmjs.org
+
+      - name: Create and push tag
+        if: ${{ steps.npm_exists.outputs.exists != 'true' && steps.tag_exists.outputs.exists != 'true' }}
+        env:
+          VERSION: ${{ steps.pkg.outputs.version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          TAG="v$VERSION"
+          git tag -a "$TAG" -m "$TAG"
+          git push origin "$TAG"
+
+      - name: Create GitHub Release
+        if: ${{ steps.npm_exists.outputs.exists != 'true' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.pkg.outputs.version }}
+          name: v${{ steps.pkg.outputs.version }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to npm
+        if: ${{ steps.npm_exists.outputs.exists != 'true' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish --access public --provenance
