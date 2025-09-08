@@ -1,0 +1,50 @@
+name: Release Artifacts
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install root deps
+        run: npm ci
+
+      - name: Install demo deps
+        run: npm ci
+        working-directory: examples/starfield-demo
+
+      - name: Build demo
+        run: npm run build
+        working-directory: examples/starfield-demo
+
+      - name: Package library (npm pack)
+        run: npm pack
+
+      - name: Archive demo dist
+        run: |
+          cd examples/starfield-demo
+          zip -r ../../demo-dist.zip dist
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            *.tgz
+            demo-dist.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

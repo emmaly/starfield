@@ -1,0 +1,32 @@
+{
+  "name": "@emmaly/starfield",
+  "version": "0.1.0",
+  "private": false,
+  "scripts": {
+    "dev": "npm --prefix examples/starfield-demo run dev",
+    "build:demo": "npm --prefix examples/starfield-demo run build",
+    "preview": "npm --prefix examples/starfield-demo run preview"
+  },
+  "svelte": "./src/Starfield.svelte",
+  "module": "./src/index.ts",
+  "exports": {
+    ".": {
+      "svelte": "./src/Starfield.svelte",
+      "default": "./src/Starfield.svelte"
+    },
+    "./Starfield.svelte": "./src/Starfield.svelte",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "svelte": "^4 || ^5"
+  },
+  "devDependencies": {
+    "svelte": "^4.2.18",
+    "typescript": "^5.5.4"
+  }
+}
