@@ -25,7 +25,7 @@ jobs:
         run: npm ci
 
       - name: Install demo deps
-        run: npm ci
+        run: npm install
         working-directory: examples/starfield-demo
 
       - name: Build demo
