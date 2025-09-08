@@ -2,6 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+👉 Live Demo: https://emmaly.github.io/starfield/
+
 Provides a mesmerizing animated starfield as a Svelte component, rendering thousands of twinkling stars with smooth animations, perfect for backgrounds, loading screens, or just adding some magic to your project.
 
 Built with performance in mind using the Canvas 2D API, so your starfield should run smoothly even on lower-end devices.
