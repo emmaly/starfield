@@ -9,6 +9,7 @@
   },
   "svelte": "./src/Starfield.svelte",
   "module": "./src/index.ts",
+  "license": "MIT",
   "exports": {
     ".": {
       "svelte": "./src/Starfield.svelte",
