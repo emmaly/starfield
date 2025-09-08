@@ -10,6 +10,14 @@
   "svelte": "./src/Starfield.svelte",
   "module": "./src/index.ts",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emmaly/starfield.git"
+  },
+  "homepage": "https://github.com/emmaly/starfield#readme",
   "exports": {
     ".": {
       "svelte": "./src/Starfield.svelte",
