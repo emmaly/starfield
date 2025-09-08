@@ -1,8 +1,8 @@
 # Emmaly's Starfield Component
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Demo](https://img.shields.io/badge/Demo-View%20site-blue)](https://emmaly.github.io/starfield/)
 
-👉 Live Demo: https://emmaly.github.io/starfield/
+Live Demo: https://emmaly.github.io/starfield/
 
 Provides a mesmerizing animated starfield as a Svelte component, rendering thousands of twinkling stars with smooth animations, perfect for backgrounds, loading screens, or just adding some magic to your project.
 
