@@ -1,8 +1,20 @@
 <script>
   import Starfield from '@emmaly/starfield';
+  // Read version directly from the workspace root package.json for reliable local dev
+  import pkg from '../../../package.json';
   let speed = 0.25;
   let density = 2.0;
+  const version = pkg?.version ?? 'dev';
 </script>
+
+<a
+  class="version-badge"
+  href="https://www.npmjs.com/package/@emmaly/starfield"
+  target="_blank"
+  rel="noreferrer"
+>
+  v{version}
+</a>
 
 <Starfield initialSpeed={speed} initialDensity={density} maxDensity={6}>
   <div class="controls" slot="speed" let:setSpeedTarget let:speedFactor>
@@ -18,3 +30,23 @@
     <span>{density.toFixed(2)}×</span>
   </div>
 </Starfield>
+
+<style>
+  .version-badge {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    background: #0b5ed7;
+    color: white;
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    opacity: 0.9;
+    z-index: 1000;
+  }
+  .version-badge:hover {
+    opacity: 1;
+  }
+</style>
